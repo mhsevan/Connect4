@@ -1,0 +1,29 @@
+.connect4-disk {
+    border-radius: 50%;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: inline-block;
+    background-color: #000000;
+    position: absolute;
+}
+
+#connect4block {
+    position: relative;
+    font-size: 0px;
+}
+
+#connect4block .connect4block-board {
+    position: relative;
+}
+
+#connect4block .connect4block-board .connect4block-board-disk {
+    border-radius: 50%;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: inline-block;
+    border: 2px solid #0000FF;
+}
