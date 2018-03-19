@@ -9,6 +9,14 @@
     position: absolute;
 }
 
+.connect4-disk.connect4-disk-red {
+    background-color: #FF0000;
+}
+
+.connect4-disk.connect4-disk-yellow {
+    background-color: #FFFF00;
+}
+
 #connect4block {
     position: relative;
     font-size: 0px;
@@ -32,18 +40,17 @@
     position: relative;
 }
 
-#connect4block .connect4block-board #connect4block-board-bg {
+#connect4block .connect4block-board .connect4block-board-bg {
     position: absolute;
+    z-index: 100;
 }
 
 #connect4block .connect4block-board .connect4block-board-container {
-    position: relative;
     width: 500px;
     padding: 5px;
 }
 
 #connect4block .connect4block-board .connect4block-board-container .connect4block-board-row {
-    position: relative;
     display: inline-block;
 }
 
@@ -53,4 +60,8 @@
     height: 70px;
     padding: 5px;
     border: 1px solid #000000;
+}
+
+#connect4block .connect4block-board .connect4-disk {
+    z-index: 1;
 }

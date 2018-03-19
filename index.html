@@ -20,11 +20,11 @@
             <div ng-controller="Connect4Controller">
                 <div id="connect4block">
                     <div id="connect4block-top" class="connect4block-top">
-                        <div id="connect4block-top-disk" class="connect4-disk"></div>
+                        <div id="connect4block-top-disk" class="connect4-disk connect4-disk-{{disk.color}}"></div>
                         <div id="connect4-top-disk-col-{{i}}" class="connect4-top-disk-col" ng-repeat="i in [0,1,2,3,4,5,6]" data-col="{{i}}"></div>
                     </div>
-                    <div class="connect4block-board">
-                        <img id="connect4block-board-bg" src="img/background.png" />
+                    <div id="connect4block-board" class="connect4block-board">
+                        <img id="connect4block-board-bg" class="connect4block-board-bg" src="img/background.png" />
                         <div class="connect4block-board-container">
                             <div class="connect4block-board-row" ng-repeat="boardRow in board">
                                 <div id="connect4block-board-cell-{{boardCol.row}}-{{boardCol.col}}" class="connect4block-board-col" ng-repeat="boardCol in boardRow" data-row="{{boardCol.row}}" data-col="{{boardCol.col}}"></div>
