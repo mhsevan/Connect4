@@ -18,7 +18,7 @@
     position: relative;
     width: 500px;
     height: 80px;
-    padding: 4px;
+    padding: 5px;
 }
 
 #connect4block .connect4block-top .connect4-top-disk-col {
@@ -29,4 +29,28 @@
 }
 
 #connect4block .connect4block-board {
+    position: relative;
+}
+
+#connect4block .connect4block-board #connect4block-board-bg {
+    position: absolute;
+}
+
+#connect4block .connect4block-board .connect4block-board-container {
+    position: relative;
+    width: 500px;
+    padding: 5px;
+}
+
+#connect4block .connect4block-board .connect4block-board-container .connect4block-board-row {
+    position: relative;
+    display: inline-block;
+}
+
+#connect4block .connect4block-board .connect4block-board-container .connect4block-board-row .connect4block-board-col {
+    display: inline-block;
+    width: 70px;
+    height: 70px;
+    padding: 5px;
+    border: 1px solid #000000;
 }

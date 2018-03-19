@@ -21,10 +21,15 @@
                 <div id="connect4block">
                     <div id="connect4block-top" class="connect4block-top">
                         <div id="connect4block-top-disk" class="connect4-disk"></div>
-                        <div id="connect4-top-disk-col-{{i}}" class="connect4-top-disk-col" ng-repeat="i in [1,2,3,4,5,6,7]" data-col="{{i}}"></div>
+                        <div id="connect4-top-disk-col-{{i}}" class="connect4-top-disk-col" ng-repeat="i in [0,1,2,3,4,5,6]" data-col="{{i}}"></div>
                     </div>
                     <div class="connect4block-board">
-                        <img src="img/background.png" />
+                        <img id="connect4block-board-bg" src="img/background.png" />
+                        <div class="connect4block-board-container">
+                            <div class="connect4block-board-row" ng-repeat="boardRow in board">
+                                <div id="connect4block-board-cell-{{boardCol.row}}-{{boardCol.col}}" class="connect4block-board-col" ng-repeat="boardCol in boardRow" data-row="{{boardCol.row}}" data-col="{{boardCol.col}}"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -67,13 +72,27 @@
 
                             $scope.board[i][j] = {
                                 row: i,
-                                col: j
+                                col: j,
+                                player: {
+                                    user: '',
+                                    color: ''
+                                }
                             };
                         }
                     }
                 }
 
                 $scope.initBoard();
+
+                $scope.moveTopDisk = function(this_col) {
+                    var topDiskColOffset = jQuery("#connect4-top-disk-col-"+this_col).position();
+                    var movePos_left = topDiskColOffset.left+5;
+                    var movePos_top = topDiskColOffset.top+5;
+                    //console.log(movePos_left,movePos_top);
+                    $topDisk.animate({left:movePos_left,top:movePos_top}, 100, function() {
+                        $topDisk.attr('data-col',this_col);
+                    });
+                }
 
                 $scope.moveTopDisk = function(this_col) {
                     var topDiskColOffset = jQuery("#connect4-top-disk-col-"+this_col).position();
