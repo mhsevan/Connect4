@@ -1,3 +1,14 @@
+body {
+    background: #333333;
+}
+
+.wrapper {
+    background: #FFFFFF;
+    padding: 20px;
+    margin: 50px 0px;
+    text-align: center;
+}
+
 .connect4-disk {
     border-radius: 50%;
     -moz-border-radius: 50%;
@@ -20,6 +31,7 @@
 #connect4block {
     position: relative;
     font-size: 0px;
+    display: inline-block;
 }
 
 #connect4block .connect4block-top {
@@ -27,6 +39,7 @@
     width: 500px;
     height: 80px;
     padding: 5px;
+    display: inline-block;
 }
 
 #connect4block .connect4block-top .connect4-top-disk-col {
@@ -42,12 +55,17 @@
 
 #connect4block .connect4block-board .connect4block-board-bg {
     position: absolute;
-    z-index: 100;
+    z-index: 5;
+    display: inline-block;
+    left: 0px;
+    top: 0px;
 }
 
 #connect4block .connect4block-board .connect4block-board-container {
     width: 500px;
     padding: 5px;
+    position: relative;
+    z-index: 10;
 }
 
 #connect4block .connect4block-board .connect4block-board-container .connect4block-board-row {
@@ -59,9 +77,8 @@
     width: 70px;
     height: 70px;
     padding: 5px;
-    border: 1px solid #000000;
 }
 
-#connect4block .connect4block-board .connect4-disk {
+#connect4block .connect4block-disks .connect4-disk {
     z-index: 1;
 }

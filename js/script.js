@@ -67,7 +67,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
             }
         }
 
-        $scope.updateDisk('red',0);
+        $scope.updateDisk('yellow',0);
     }
 
     $scope.initBoard();
@@ -113,6 +113,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
     }
 
     jQuery(function(){
+        $scope.moveTopDisk(0);
         $topDisk.hide();
 
         jQuery(document).on({
@@ -126,6 +127,18 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
             },
             '.connect4-top-disk-col'
         );
+        jQuery(document).on({
+                mouseenter: function(e){
+                    var this_col = jQuery(this).attr('data-col');
+                    console.log(this_col);
+                    $scope.moveTopDisk(this_col);
+                },
+                click: function(e){
+                    $scope.dropDisk();
+                }
+            },
+            '.connect4block-board-col'
+        );
         $topDisk.on( "click", function() {
             $scope.dropDisk();
         });
@@ -138,6 +151,16 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
                 },
             },
             '#connect4block-top'
+        );
+        jQuery(document).on({
+                mouseenter: function(e){
+                    $topDisk.show();
+                },
+                mouseleave: function(e){
+                    $topDisk.hide();
+                },
+            },
+            '.connect4block-board-container'
         );
     });
 });
