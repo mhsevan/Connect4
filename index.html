@@ -19,11 +19,12 @@
 
             <div ng-controller="Connect4Controller">
                 <div id="connect4block">
-                    <div class="connect4-disk d-none"></div>
+                    <div id="connect4block-top" class="connect4block-top">
+                        <div id="connect4block-top-disk" class="connect4-disk"></div>
+                        <div class="connect4-top-disk-pos" ng-repeat="i in [1,2,3,4,5,6,7]" data-col="{{i}}"></div>
+                    </div>
                     <div class="connect4block-board">
-                        <div class="connect4block-board-row" ng-repeat="boardRow in board">
-                            <div class="connect4block-board-disk" ng-repeat="boardItem in boardRow"></div>
-                        </div>
+                        <img src="img/background.png" />
                     </div>
                 </div>
             </div>
@@ -31,7 +32,7 @@
 
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
@@ -40,18 +41,25 @@
             var connect4App = angular.module('connect4App', []);
 
             connect4App.controller('Connect4Controller', function Connect4Controller($scope, $parse, $http) {
-                $scope.board_info = {
-                    row: 6,
-                    col: 7
+                $scope.config = {
+                    top: {
+                        width: 500,
+                        height: 80
+                    },
+                    board: {
+                        row: 6,
+                        col: 7
+                    }
                 };
+
                 $scope.board = [];
                 $scope.initBoard = function() {
-                    for (i = 0; i < $scope.board_info.row; i++) {
+                    for (i = 0; i < $scope.config.board.row; i++) {
                         if($scope.board[i] == undefined) {
                             $scope.board[i] = [];
                         }
 
-                        for (j = 0; j < $scope.board_info.col; j++) {
+                        for (j = 0; j < $scope.config.board.col; j++) {
                             if($scope.board[i][j] == undefined) {
                                 $scope.board[i][j] = {};
                             }
@@ -62,14 +70,40 @@
                             };
                         }
                     }
-
-                    console.log($scope.board);
                 }
+
+
 
                 $scope.initBoard();
 
                 jQuery(function(){
+                    jQuery(document).on({
+                            mouseenter: function(e){
 
+                            },
+                            mousemove:  function(e){
+                                //var topPos = jQuery("#connect4block-top").position();
+                                var topOffset = jQuery("#connect4block-top").offset();
+                                var topWidth = jQuery("#connect4block-top").outerWidth();
+                                console.log(topWidth);
+
+                                var boundary_left = topOffset.left+30;
+                                var boundary_right = topOffset.left+topWidth-30;
+
+                                var movePos_left = e.pageX-topOffset.left-30;
+
+                                if(boundary_left <= e.pageX && e.pageX <= boundary_right){
+                                    //var movePos_top = e.pageY-topOffset.top-30;
+
+                                    jQuery("#connect4block-top-disk").css({left:movePos_left});
+                                }
+                            },
+                            mouseleave: function(e){
+
+                            },
+                        },
+                        '#connect4block-top'
+                    );
                 });
             });
             //]]>

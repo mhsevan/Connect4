@@ -14,16 +14,21 @@
     font-size: 0px;
 }
 
-#connect4block .connect4block-board {
+#connect4block .connect4block-top {
     position: relative;
+    width: 500px;
+    height: 80px;
+    padding: 4px;
+    border: 1px solid #000;
 }
 
-#connect4block .connect4block-board .connect4block-board-disk {
-    border-radius: 50%;
-    -moz-border-radius: 50%;
-    -webkit-border-radius: 50%;
-    width: 60px;
-    height: 60px;
+#connect4block .connect4block-top .connect4-top-disk-pos {
     display: inline-block;
-    border: 2px solid #0000FF;
+    width: 70px;
+    height: 70px;
+    padding: 5px;
+    border: 1px solid #000;
+}
+
+#connect4block .connect4block-board {
 }
