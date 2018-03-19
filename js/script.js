@@ -49,6 +49,10 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
     }
 
     $scope.initBoard = function() {
+        $scope.board = [];
+
+        $connect4board.find('.connect4-disk').remove();
+
         for (i = 0; i < $scope.config.board.row; i++) {
             if($scope.board[i] == undefined) {
                 $scope.board[i] = [];
@@ -67,7 +71,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
             }
         }
 
-        $scope.updateDisk('yellow',0);
+        $scope.updateDisk('red',0);
     }
 
     $scope.initBoard();
@@ -83,10 +87,103 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         });
     }
 
+    $scope.isInsideBoard = function(this_row,this_col){
+        var isInsideBoard_row = false;
+        var isInsideBoard_col = false;
+
+        if(0 <= this_row && this_row < $scope.config.board.row){
+            isInsideBoard_row = true;
+        }
+
+        if(0 <= this_col && this_col < $scope.config.board.col){
+            isInsideBoard_col = true;
+        }
+
+        return (isInsideBoard_row && isInsideBoard_col);
+    }
+
+    $scope.isDiskMatched = function(this_row,this_col){
+        var matchFound = false;
+
+        this_row = parseInt(this_row);
+        this_col = parseInt(this_col);
+
+        var this_color = $scope.board[this_row][this_col].color;
+
+        angular.forEach(['hor','ver','dia_up','dia_down'], function(check_type) {
+            if(!matchFound){
+                var countMatcheItem = 1;
+
+                var go_left_row = 0;
+                var go_left_col = 0;
+
+                var go_right_row = 0;
+                var go_right_col = 0;
+
+                if(check_type === 'hor'){
+                    go_left_row = this_row;
+                    go_right_row = this_row;
+                } else if(check_type === 'ver'){
+                    go_left_col = this_col;
+                    go_right_col = this_col;
+                }
+
+                var checkStatus = {
+                    left: true,
+                    right: true
+                };
+
+                for(var i=1; i < 4; i++){
+                    if(check_type === 'dia_up'){
+
+                        go_left_row = 1 * this_row + i;
+                        go_left_col = this_col - i;
+
+                        go_right_row = this_row - i;
+                        go_right_col = 1 * this_col + i;
+                    } else {
+                        if(check_type === 'ver' || check_type === 'dia_down'){
+                            go_left_row = this_row - i;
+                            go_right_row = 1 * this_row + i;
+                        }
+
+                        if(check_type === 'hor' || check_type === 'dia_down'){
+                            go_left_col = this_col - i;
+                            go_right_col = 1 * this_col + i;
+                        }
+                    }
+
+                    if(checkStatus.left && $scope.isInsideBoard(go_left_row,go_left_col)){
+                        if($scope.board[go_left_row][go_left_col].color === this_color){
+                            countMatcheItem++;
+                        } else {
+                            checkStatus.left = false
+                        }
+                    }
+
+                    if(checkStatus.right && $scope.isInsideBoard(go_right_row,go_right_col)){
+                        if($scope.board[go_right_row][go_right_col].color === this_color){
+                            countMatcheItem++;
+                        } else {
+                            checkStatus.right = false
+                        }
+                    }
+                }
+
+                if(countMatcheItem == 4){
+                    matchFound = true;
+                }
+            }
+        });
+
+        if(matchFound){
+            alert('matched');
+            $scope.initBoard();
+        }
+    }
+
     $scope.dropDisk = function() {
         var this_col = $scope.disk.col;
-
-        console.log(this_col);
 
         for (i = $scope.config.board.row - 1; i >= 0; i--) {
             if($scope.board[i][this_col].color === ''){
@@ -107,6 +204,8 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
                 $scope.board[i][this_col].color = this_color;
 
                 $scope.swapDiskColor();
+
+                $scope.isDiskMatched(i,this_col);
                 break;
             }
         }
@@ -130,7 +229,6 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         jQuery(document).on({
                 mouseenter: function(e){
                     var this_col = jQuery(this).attr('data-col');
-                    console.log(this_col);
                     $scope.moveTopDisk(this_col);
                 },
                 click: function(e){
