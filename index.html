@@ -21,7 +21,7 @@
                 <div id="connect4block">
                     <div id="connect4block-top" class="connect4block-top">
                         <div id="connect4block-top-disk" class="connect4-disk"></div>
-                        <div class="connect4-top-disk-pos" ng-repeat="i in [1,2,3,4,5,6,7]" data-col="{{i}}"></div>
+                        <div id="connect4-top-disk-col-{{i}}" class="connect4-top-disk-col" ng-repeat="i in [1,2,3,4,5,6,7]" data-col="{{i}}"></div>
                     </div>
                     <div class="connect4block-board">
                         <img src="img/background.png" />
@@ -39,6 +39,7 @@
         <script type="text/javascript">
             //<![CDATA[
             var connect4App = angular.module('connect4App', []);
+            var $topDisk = jQuery("#connect4block-top-disk");
 
             connect4App.controller('Connect4Controller', function Connect4Controller($scope, $parse, $http) {
                 $scope.config = {
@@ -72,34 +73,41 @@
                     }
                 }
 
-
-
                 $scope.initBoard();
 
+                $scope.moveTopDisk = function(this_col) {
+                    var topDiskColOffset = jQuery("#connect4-top-disk-col-"+this_col).position();
+                    var movePos_left = topDiskColOffset.left+5;
+                    var movePos_top = topDiskColOffset.top+5;
+                    //console.log(movePos_left,movePos_top);
+                    $topDisk.animate({left:movePos_left,top:movePos_top}, 100, function() {
+                        $topDisk.attr('data-col',this_col);
+                    });
+                }
+
                 jQuery(function(){
+                    $topDisk.hide();
+
                     jQuery(document).on({
                             mouseenter: function(e){
-
+                                var this_col = jQuery(this).attr('data-col');
+                                $scope.moveTopDisk(this_col);
                             },
-                            mousemove:  function(e){
-                                //var topPos = jQuery("#connect4block-top").position();
-                                var topOffset = jQuery("#connect4block-top").offset();
-                                var topWidth = jQuery("#connect4block-top").outerWidth();
-                                console.log(topWidth);
-
-                                var boundary_left = topOffset.left+30;
-                                var boundary_right = topOffset.left+topWidth-30;
-
-                                var movePos_left = e.pageX-topOffset.left-30;
-
-                                if(boundary_left <= e.pageX && e.pageX <= boundary_right){
-                                    //var movePos_top = e.pageY-topOffset.top-30;
-
-                                    jQuery("#connect4block-top-disk").css({left:movePos_left});
-                                }
+                            click: function(e){
+                            }
+                        },
+                        '.connect4-top-disk-col'
+                    );
+                    $topDisk.on( "click", function() {
+                        var this_col = jQuery(this).attr('data-col');
+                        console.log(this_col);
+                    });
+                    jQuery(document).on({
+                            mouseenter: function(e){
+                                $topDisk.show();
                             },
                             mouseleave: function(e){
-
+                                $topDisk.hide();
                             },
                         },
                         '#connect4block-top'

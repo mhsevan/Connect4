@@ -19,15 +19,13 @@
     width: 500px;
     height: 80px;
     padding: 4px;
-    border: 1px solid #000;
 }
 
-#connect4block .connect4block-top .connect4-top-disk-pos {
+#connect4block .connect4block-top .connect4-top-disk-col {
     display: inline-block;
     width: 70px;
     height: 70px;
     padding: 5px;
-    border: 1px solid #000;
 }
 
 #connect4block .connect4block-board {
