@@ -3,6 +3,12 @@ var $topDisk = jQuery("#connect4block-top-disk");
 var $connect4board = jQuery("#connect4block-board");
 
 connect4App.controller('Connect4Controller', function Connect4Controller($scope, $parse, $http) {
+    $scope.newgame = true;
+    $scope.winner = {
+        color: '',
+        player: ''
+    };
+
     $scope.config = {
         top: {
             width: 500,
@@ -177,7 +183,11 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         });
 
         if(matchFound){
-            alert('matched');
+            $scope.winner.color = this_color;
+            $scope.winner.player = $scope.config.color[this_color];
+
+            $scope.newgame = false;
+            //alert('matched');
             $scope.initBoard();
         }
     }

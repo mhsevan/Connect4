@@ -20,7 +20,12 @@
                     <h1>Connect 4</h1>
 
                     <div ng-controller="Connect4Controller">
-                        <div id="connect4block">
+                        <div ng-show="!newgame">
+                            <h2>Congratulations!</h2>
+                            <h3><strong>{{winner.player}}</strong> won the game</h3>
+                            <button type="button" class="btn btn-primary" ng-click="newgame = !newgame">New Game</button>
+                        </div>
+                        <div id="connect4block" ng-show="newgame">
                             <div id="connect4block-top" class="connect4block-top">
                                 <div id="connect4block-top-disk" class="connect4-disk connect4-disk-{{disk.color}}"></div>
                                 <div id="connect4-top-disk-col-{{i}}" class="connect4-top-disk-col" ng-repeat="i in [0,1,2,3,4,5,6]" data-col="{{i}}"></div>
