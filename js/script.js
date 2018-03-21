@@ -19,8 +19,18 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
             col: 7
         },
         color: {
-            red: 'p1',
-            yellow: 'p2'
+            red: 'player1',
+            yellow: 'player2'
+        },
+        players: {
+            player1: {
+                name: 'p1',
+                type: 'user'
+            },
+            player2: {
+                name: 'p2',
+                type: 'user'
+            }
         },
         status: 'pending'
     };
@@ -188,7 +198,6 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
             $scope.newgame = false;
             //alert('matched');
-            $scope.initBoard();
         }
     }
 
@@ -219,6 +228,12 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
                 break;
             }
         }
+    }
+
+    $scope.startNewGame = function() {
+        $scope.newgame = true;
+        $scope.initBoard();
+        $scope.syncInputs();
     }
 
     jQuery(function(){
