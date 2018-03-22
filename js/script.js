@@ -3,11 +3,23 @@ var $topDisk = jQuery("#connect4block-top-disk");
 var $connect4board = jQuery("#connect4block-board");
 
 connect4App.controller('Connect4Controller', function Connect4Controller($scope, $parse, $http) {
-    $scope.newgame = true;
     $scope.winner = {
+        name: '',
         color: '',
-        player: ''
+        type: 'user'
     };
+
+    $scope.default_init = {
+        color: 'red',
+        game_mode: 'multiple', //multiple || single,
+        game_level: 'easy'
+    }
+
+    $scope.default_player = {
+        name: '',
+        color: '',
+        type: 'user'
+    }
 
     $scope.config = {
         top: {
@@ -24,20 +36,24 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         },
         players: {
             player1: {
-                name: 'p1',
+                name: '',
+                color: '',
                 type: 'user'
             },
             player2: {
-                name: 'p2',
+                name: '',
+                color: '',
                 type: 'user'
             }
         },
-        status: 'pending'
+        init: {},
+        game_status: 'init'
     };
+
+    $scope.config.init = jQuery.extend(true, {}, $scope.default_init);
 
     $scope.disk = {
         color: '',
-        player: '',
         col: 1
     };
 
@@ -49,7 +65,6 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
     $scope.updateDisk = function(this_color,this_col) {
         $scope.disk.color = this_color;
-        $scope.disk.player = $scope.config.color[this_color];
         if(this_col >= 0){
             $scope.disk.col = this_col;
         }
@@ -87,10 +102,10 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
             }
         }
 
-        $scope.updateDisk('red',0);
-    }
+        $scope.config.game_status = 'running';
 
-    $scope.initBoard();
+        $scope.updateDisk($scope.config.init.color,0);
+    }
 
     $scope.moveTopDisk = function(this_col) {
         var topDiskColOffset = jQuery("#connect4-top-disk-col-"+this_col).position();
@@ -193,10 +208,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         });
 
         if(matchFound){
-            $scope.winner.color = this_color;
-            $scope.winner.player = $scope.config.color[this_color];
-
-            $scope.newgame = false;
+            $scope.gameover(this_color);
             //alert('matched');
         }
     }
@@ -230,23 +242,76 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         }
     }
 
-    $scope.startNewGame = function() {
-        $scope.newgame = true;
-        $scope.initBoard();
+    $scope.gameover = function(this_color) {
+        $scope.winner = jQuery.extend(true, {}, $scope.config.players[$scope.config.color[this_color]]);
+
+        $scope.gameRunning('hide');
+
+        $scope.config.game_status = 'gameover';
+
         $scope.syncInputs();
     }
 
-    jQuery(function(){
+    $scope.startGame = function() {
+        var player1color = $scope.config.init.color;
+        var player2color = player1color === 'red'? 'yellow':'red';
+
+        //console.log(player1color,player2color);
+
+        $scope.config.players.player1.color = player1color;
+        $scope.config.players.player2.color = player2color;
+
+        $scope.config.color[player1color] = 'player1';
+        $scope.config.color[player2color] = 'player2';
+
+        $scope.syncInputs();
+        $scope.initBoard();
         $scope.moveTopDisk(0);
         $topDisk.hide();
+        $scope.syncInputs();
+    }
+
+    $scope.initGame = function() {
+        $scope.config.init = jQuery.extend(true, {}, $scope.default_init);
+        $scope.config.players.player1 = jQuery.extend(true, {}, $scope.default_player);
+        $scope.config.players.player2 = jQuery.extend(true, {}, $scope.default_player);
+
+        $scope.config.game_status = 'init';
+        $scope.syncInputs();
+    }
+
+    $scope.gameRunning = function(action,additional_v1) {
+        if($scope.config.game_status === 'running'){
+            switch(action) {
+                case 'show':
+                    $topDisk.show();
+                    break;
+
+                case 'hide':
+                    $topDisk.hide();
+                    break;
+
+                case 'dropDisk':
+                    $scope.dropDisk();
+                    break;
+                case 'moveTopDisk':
+                    var this_col = additional_v1;
+                    $scope.moveTopDisk(this_col);
+                    break;
+            }
+        }
+    }
+
+    jQuery(function(){
+        //$scope.startGame();
 
         jQuery(document).on({
                 mouseenter: function(e){
                     var this_col = jQuery(this).attr('data-col');
-                    $scope.moveTopDisk(this_col);
+                    $scope.gameRunning('moveTopDisk',this_col);
                 },
                 click: function(e){
-                    $scope.dropDisk();
+                    $scope.gameRunning('dropDisk');
                 }
             },
             '.connect4-top-disk-col'
@@ -254,33 +319,33 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         jQuery(document).on({
                 mouseenter: function(e){
                     var this_col = jQuery(this).attr('data-col');
-                    $scope.moveTopDisk(this_col);
+                    $scope.gameRunning('moveTopDisk',this_col);
                 },
                 click: function(e){
-                    $scope.dropDisk();
+                    $scope.gameRunning('dropDisk');
                 }
             },
             '.connect4block-board-col'
         );
         $topDisk.on( "click", function() {
-            $scope.dropDisk();
+            $scope.gameRunning('dropDisk');
         });
         jQuery(document).on({
                 mouseenter: function(e){
-                    $topDisk.show();
+                    $scope.gameRunning('show');
                 },
                 mouseleave: function(e){
-                    $topDisk.hide();
+                    $scope.gameRunning('hide');
                 },
             },
             '#connect4block-top'
         );
         jQuery(document).on({
                 mouseenter: function(e){
-                    $topDisk.show();
+                    $scope.gameRunning('show');
                 },
                 mouseleave: function(e){
-                    $topDisk.hide();
+                    $scope.gameRunning('hide');
                 },
             },
             '.connect4block-board-container'

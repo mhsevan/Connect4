@@ -15,16 +15,75 @@
     </head>
     <body>
         <div class="container" ng-app="connect4App">
-            <div class="wrapper">
+            <div class="wrapper rounded">
 
                     <h1>Connect 4</h1>
 
                     <div ng-controller="Connect4Controller">
-                        <div id="connect4block">
-                            <div class="connect4gameover" class="connect4gameover" ng-show="!newgame">
+                        <div class="connect4init" ng-show="config.game_status == 'init'">
+                            <form ng-submit="startGame()">
+                                <h4>Starting Color</h4>
+                                <div class="row">
+                                    <div class="col-sm">
+                                        <div class="bg-danger p-5">&nbsp;</div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="config.init.color" id="initColorRed" value="red" ng-model="config.init.color" ng-change="syncInputs()">
+                                            <label class="form-check-label" for="initColorRed">
+                                                Red
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="bg-warning p-5">&nbsp;</div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="config.init.color" id="initColorYellow" value="yellow" ng-model="config.init.color" ng-change="syncInputs()">
+                                            <label class="form-check-label" for="initColorYellow">
+                                                Yellow
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h4 class="mt-5">Players Information</h4>
+                                <div class="row">
+                                    <div class="col-sm">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control form-control-lg" placeholder="Player 1 Name" ng-model="config.players.player1.name" required />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control form-control-lg" placeholder="Player 2 Name" ng-model="config.players.player2.name" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Start Game</button>
+                            </form>
+                        </div>
+                        <div id="connect4block" ng-show="config.game_status!=='init'">
+                            <div class="connect4gameover" class="connect4gameover" ng-show="config.game_status === 'gameover'">
                                 <h2>Congratulations!</h2>
-                                <h3><strong>{{winner.player}}</strong> won the game</h3>
-                                <button type="button" class="btn btn-primary" ng-click="startNewGame()">New Game</button>
+                                <h3><strong>{{winner.name}}</strong> won the game</h3>
+                                <div class="row">
+                                    <div class="col-sm text-right">
+                                        <button type="button" class="btn btn-primary" ng-click="startGame()">Restart</button>
+                                    </div>
+                                    <div class="col-sm text-left">
+                                        <button type="button" class="btn btn-primary" ng-click="initGame()">New Game</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="row">
+                                    <div class="col-sm">
+                                        <h4><div class="connect4-disk connect4-disk-display connect4-disk-{{config.players.player1.color}}"></div> {{config.players.player1.name}}</h4>
+                                    </div>
+                                    <div class="col-sm">
+                                        <h4><div class="connect4-disk connect4-disk-display connect4-disk-{{config.players.player2.color}}"></div> {{config.players.player2.name}}</h4>
+                                    </div>
+                                    <div class="col-sm">
+                                        <button type="button" class="btn btn-primary" ng-click="initGame()">Exit Game</button>
+                                    </div>
+                                </div>
                             </div>
                             <div id="connect4block-top" class="connect4block-top">
                                 <div id="connect4block-top-disk" class="connect4-disk connect4-disk-{{disk.color}}"></div>

@@ -9,6 +9,8 @@ body {
     margin: 50px 0px;
     text-align: center;
     display: inline-block;
+    width: 540px;
+    height: 642px;
 }
 
 .connect4-disk {
@@ -22,6 +24,13 @@ body {
     position: absolute;
 }
 
+.connect4-disk-display {
+    width: 15px;
+    height: 15px;
+    position: relative;
+    border: 1px solid #000000;
+}
+
 .connect4-disk.connect4-disk-red {
     background-color: #FF0000;
 }
@@ -30,10 +39,13 @@ body {
     background-color: #FFFF00;
 }
 
+.connect4init {
+    margin-top: 50px;
+}
+
 #connect4block {
     position: relative;
     font-size: 0px;
-    display: inline-block;
 }
 
 #connect4block .connect4gameover {
