@@ -211,32 +211,40 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
             $scope.gameover(this_color);
             //alert('matched');
         }
+
+        return matchFound;
     }
 
     $scope.dropDisk = function() {
         var this_col = $scope.disk.col;
 
+        var topDiskOffset = $topDisk.position();
+
+        var startPos_left = topDiskOffset.left;//+5;
+        var startPos_top = topDiskOffset.top;//+5;
+
         for (i = $scope.config.board.row - 1; i >= 0; i--) {
             if($scope.board[i][this_col].color === ''){
                 var this_color = $scope.disk.color;
-
-                var $thisCell = $connect4board.find('#connect4block-board-cell-'+i+'-'+this_col);
                 var $newDisk = jQuery('<div class="connect4-disk connect4-disk-'+this_color+'"></div>');
 
-                var cellOffset = $thisCell.position();
+                var $thisCell = $connect4board.find('#connect4block-board-cell-'+i+'-'+this_col);
+                var thisCellOffset = $thisCell.position();
 
-                var movePos_left = cellOffset.left+5;
-                var movePos_top = cellOffset.top+5;
+                var movePos_left = thisCellOffset.left+5;
+                var movePos_top = thisCellOffset.top+5;
 
-                $newDisk.css({left:movePos_left,top:movePos_top});
+                $newDisk.css({left:startPos_left,top:startPos_top});
 
                 $connect4board.append($newDisk);
 
-                $scope.board[i][this_col].color = this_color;
+                $newDisk.animate({left:movePos_left,top:movePos_top}, 350, function() {
+                    $scope.board[i][this_col].color = this_color;
 
-                $scope.swapDiskColor();
-
-                $scope.isDiskMatched(i,this_col);
+                    if($scope.isDiskMatched(i,this_col) === false){
+                        $scope.swapDiskColor();
+                    }
+                });
                 break;
             }
         }
