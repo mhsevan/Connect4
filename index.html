@@ -5,6 +5,8 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
         <link rel="stylesheet" href="css/style.css" />
@@ -22,29 +24,62 @@
                     <div ng-controller="Connect4Controller">
                         <div class="connect4init" ng-show="config.game_status == 'init'">
                             <form ng-submit="startGame()">
-                                <h4>Starting Color</h4>
-                                <div class="row">
+                                <h4>Game Mode</h4>
+                                <div class="row mt-3">
                                     <div class="col-sm">
-                                        <div class="bg-danger p-5">&nbsp;</div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="config.init.color" id="initColorRed" value="red" ng-model="config.init.color" ng-change="syncInputs()">
-                                            <label class="form-check-label" for="initColorRed">
-                                                Red
-                                            </label>
+                                        <div class="border border-secondary rounded p-2">
+                                            <div class="bg-light p-5">
+                                                <i class="material-icons">person</i>
+                                            </div>
+                                            <div class="form-check p-2">
+                                                <input class="form-check-input" type="radio" name="config.init.game_mode" id="initGameModeP1" value="red" ng-model="config.init.game_mode" ng-change="syncInputs()">
+                                                <label class="form-check-label" for="initGameModeP1">
+                                                    1 Player
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-sm">
-                                        <div class="bg-warning p-5">&nbsp;</div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="config.init.color" id="initColorYellow" value="yellow" ng-model="config.init.color" ng-change="syncInputs()">
-                                            <label class="form-check-label" for="initColorYellow">
-                                                Yellow
-                                            </label>
+                                        <div class="border border-secondary rounded p-2">
+                                            <div class="bg-light p-5">
+                                                <i class="material-icons">group</i>
+                                            </div>
+                                            <div class="form-check p-2">
+                                                <input class="form-check-input" type="radio" name="config.init.game_mode" id="initGameModeP2" value="yellow" ng-model="config.init.game_mode" ng-change="syncInputs()">
+                                                <label class="form-check-label" for="initGameModeP2">
+                                                    2 Player
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <h4 class="mt-5">Players Information</h4>
-                                <div class="row">
+                                <h4 class="mt-3">Starting Color</h4>
+                                <div class="row mt-3">
+                                    <div class="col-sm">
+                                        <div class="border border-secondary rounded p-2">
+                                            <div class="bg-danger p-5">&nbsp;</div>
+                                            <div class="form-check p-2">
+                                                <input class="form-check-input" type="radio" name="config.init.color" id="initColorRed" value="red" ng-model="config.init.color" ng-change="syncInputs()">
+                                                <label class="form-check-label" for="initColorRed">
+                                                    Red
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="border border-secondary rounded p-2">
+                                            <div class="bg-warning p-5">&nbsp;</div>
+                                            <div class="form-check p-2">
+                                                <input class="form-check-input" type="radio" name="config.init.color" id="initColorYellow" value="yellow" ng-model="config.init.color" ng-change="syncInputs()">
+                                                <label class="form-check-label" for="initColorYellow">
+                                                    Yellow
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h4 class="mt-3">Players Information</h4>
+                                <div class="row mt-3">
                                     <div class="col-sm">
                                         <div class="form-group">
                                             <input type="text" class="form-control form-control-lg" placeholder="Player 1 Name" ng-model="config.players.player1.name" required />
