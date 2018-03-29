@@ -8,23 +8,29 @@ if ("WebSocket" in window) {
     console.log("WebSocket is supported by your Browser!");
 
     // Let us open a web socket
-    var ws = new WebSocket("ws://localhost:25003");
+    var ws = new WebSocket("ws://localhost:10000");
 
     ws.onopen = function(){
         // Web Socket is connected, send data using send()
-        ws.send("Message to send");
+        ws.send("888");
         console.log("Message is sent...");
     };
 
     ws.onmessage = function (evt){
         var received_msg = evt.data;
         console.log("Message is received...");
-        console.log(JSON.parse(received_msg));
+        console.log(received_msg);
     };
 
     ws.onclose = function(){
         // websocket is closed.
         console.log("Connection is closed...");
+    };
+
+    ws.onerror = function(evt){
+        // websocket is error.
+        console.log("Connection error...");
+        console.log(evt);
     };
 } else {
     // The browser doesn't support WebSocket
