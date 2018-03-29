@@ -2,6 +2,35 @@ var connect4App = angular.module('connect4App', []);
 var $topDisk = jQuery("#connect4block-top-disk");
 var $connect4board = jQuery("#connect4block-board");
 
+
+
+if ("WebSocket" in window) {
+    console.log("WebSocket is supported by your Browser!");
+
+    // Let us open a web socket
+    var ws = new WebSocket("ws://localhost:25003");
+
+    ws.onopen = function(){
+        // Web Socket is connected, send data using send()
+        ws.send("Message to send");
+        console.log("Message is sent...");
+    };
+
+    ws.onmessage = function (evt){
+        var received_msg = evt.data;
+        console.log("Message is received...");
+        console.log(JSON.parse(received_msg));
+    };
+
+    ws.onclose = function(){
+        // websocket is closed.
+        console.log("Connection is closed...");
+    };
+} else {
+    // The browser doesn't support WebSocket
+    console.log("WebSocket NOT supported by your Browser!");
+}
+
 connect4App.controller('Connect4Controller', function Connect4Controller($scope, $parse, $http) {
     $scope.winner = {
         name: '',
