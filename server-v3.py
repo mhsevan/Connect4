@@ -1,12 +1,25 @@
 import socket
 import re
-from base64 import b64encode
+import base64
 from hashlib import sha1
+import zlib
+
+
+def decode_base64_and_inflate(b64string):
+    decoded_data = b64string #base64.urlsafe_b64decode(b64string)
+    return zlib.decompress(b64string)
+
+
+def deflate_and_base64_encode(string_val):
+    zlibbed_str = zlib.compress(string_val)
+    compressed_string = zlibbed_str[2:-4]
+    return base64.b64encode(compressed_string)
 
 websocket_answer = (
-    'HTTP/1.1 101 Switching Protocols',
+    'HTTP/1.1 101 Web Socket Protocol Handshake',
     'Upgrade: websocket',
     'Connection: Upgrade',
+    'Accept: text/html',
     'Sec-WebSocket-Accept: {key}\r\n\r\n',
 )
 
@@ -37,7 +50,7 @@ while True:
 
         key = (re.search('Sec-WebSocket-Key:\s+(.*?)[\n\r]+', handshake_data).groups()[0].strip())
 
-        response_key = b64encode(sha1((key + GUID).encode()).digest()).decode()
+        response_key = base64.b64encode(sha1((key + GUID).encode()).digest()).decode()
         response = '\r\n'.join(websocket_answer).format(key=response_key)
 
         connection.send(response.encode())
@@ -45,8 +58,8 @@ while True:
         # Receive the data in small chunks and retransmit it
         while True:
             data = connection.recv(1024)
-            #data_str = data.decode('utf-8')
-            print('data',data)
+            #data_str = data.decode()
+            print('data', data)
             #print(data_str)
             #print(data.decode('cp1252'))
 

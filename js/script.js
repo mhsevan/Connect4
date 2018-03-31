@@ -5,14 +5,21 @@ var $connect4board = jQuery("#connect4block-board");
 
 
 if ("WebSocket" in window) {
+    var msg_count = 0;
+    var player_username = 'p1';
+
     console.log("WebSocket is supported by your Browser!");
 
     // Let us open a web socket
-    var ws = new WebSocket("ws://localhost:10000");
+    var ws = new WebSocket("ws://localhost:8765/");
+    //ws.binaryType = 'arraybuffer';
+
+    var bufferData = new ArrayBuffer(128);
+    //var intview = new Uint32Array(bufferData);
 
     ws.onopen = function(){
         // Web Socket is connected, send data using send()
-        ws.send("888");
+        ws.send(player_username);
         console.log("Message is sent...");
     };
 
@@ -20,6 +27,14 @@ if ("WebSocket" in window) {
         var received_msg = evt.data;
         console.log("Message is received...");
         console.log(received_msg);
+        if(msg_count == 0){
+            if(received_msg === 'received:'+player_username){
+                ws.send(player_username);
+                console.log("Message is sent: "+player_username);
+            }
+            msg_count++;
+        }
+        return false;
     };
 
     ws.onclose = function(){
