@@ -3,8 +3,7 @@ var $topDisk = jQuery("#connect4block-top-disk");
 var $connect4board = jQuery("#connect4block-board");
 
 
-
-if ("WebSocket" in window) {
+if (false && "WebSocket" in window) {
     var msg_count = 0;
     var player_username = 'p1';
 
@@ -12,10 +11,6 @@ if ("WebSocket" in window) {
 
     // Let us open a web socket
     var ws = new WebSocket("ws://localhost:8765/");
-    //ws.binaryType = 'arraybuffer';
-
-    var bufferData = new ArrayBuffer(128);
-    //var intview = new Uint32Array(bufferData);
 
     ws.onopen = function(){
         // Web Socket is connected, send data using send()
