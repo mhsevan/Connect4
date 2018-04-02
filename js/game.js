@@ -22,6 +22,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         ai_players: {
             random_ai: {
                 name: 'AI - Random',
+                active: true,
                 source: 'local',
             },
             // js_ai: {
@@ -32,10 +33,13 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
             //     name: 'AI - Java',
             //     source: 'remote',
             // },
-            // py_ai: {
-            //     name: 'AI - Python',
-            //     source: 'remote',
-            // }
+            py_ai: {
+                name: 'AI - Python',
+                active: true,
+                source: 'remote',
+                remote_server: 'localhost',
+                remote_port: 8765,
+            }
         },
     }
 
@@ -72,9 +76,72 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
     $scope.board_drop_space = [];
     $scope.board = [];
 
-    $scope.syncInputs = function() {
+    $scope.syncInputs = function () {
         $scope.$applyAsync();
     };
+
+    $scope.defaultFor = function(arg, val) {
+        return typeof arg !== 'undefined' ? arg : val;
+    }
+
+    $scope.create_output = function(username, response_type, response_data, response_to_type, response_to_data){
+        var output_data = {
+            username: $scope.defaultFor(username,''),
+            response_type: $scope.defaultFor(response_type,''),
+            response_data: $scope.defaultFor(response_data,''),
+            response_to_type: $scope.defaultFor(response_to_type,''),
+            response_to_data: $scope.defaultFor(response_to_data,''),
+        }
+
+        return output_data
+    }
+
+    if (false && "WebSocket" in window) {
+        $scope.client_username = 'game_player';
+        $scope.client_join_success = false;
+
+        console.log("WebSocket is supported by your Browser!");
+
+        // Let us open a web socket
+        $scope.ws = new WebSocket("ws://localhost:8765/");
+
+        $scope.ws.onopen = function(){
+            // Web Socket is connected, send data using send()
+            var join_data = $scope.create_output($scope.client_username, 'join')
+            $scope.ws.send(JSON.stringify(join_data));
+            console.log("Join:",join_data);
+        };
+
+        $scope.ws.onmessage = function (evt){
+            var join_str = evt.data;
+            var join_success = JSON.parse(join_str);
+
+            console.log("Received",join_success);
+
+            if(join_success.response_type === 'join'){
+                $scope.client_join_success = true;
+                // $scope.ws.send(player_username);
+                // console.log("Message is sent: "+player_username);
+            }
+            return false;
+        };
+
+        $scope.ws.onclose = function(){
+            $scope.client_join_success = false;
+            // websocket is closed.
+            console.log("Connection is closed...");
+        };
+
+        $scope.ws.onerror = function(evt){
+            $scope.client_join_success = false;
+            // websocket is error.
+            console.log("Connection error...");
+            console.log(evt);
+        };
+    } else {
+        // The browser doesn't support WebSocket
+        console.log("WebSocket NOT supported by your Browser!");
+    }
 
     $scope.gameFormInit = function() {
         $scope.game.status = 'init';
