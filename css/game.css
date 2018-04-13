@@ -49,10 +49,13 @@ body {
     position: absolute;
 }
 
-.connect4-disk-display {
+.connect4-disk-relative {
+    position: relative;
+}
+
+.connect4-disk-sm {
     width: 15px;
     height: 15px;
-    position: relative;
     border: 1px solid #000000;
 }
 
@@ -73,6 +76,18 @@ body {
     font-size: 0px;
 }
 
+#connect4block #loadingBlock {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    text-align: center;
+    padding: 160px 20px;
+    z-index: 20;
+    background: url("../img/transparent-bg-white.png");
+}
+
 #connect4block .connect4gameover {
     position: absolute;
     left: 0px;
@@ -83,6 +98,10 @@ body {
     padding: 160px 20px;
     z-index: 20;
     background: url("../img/transparent-bg-white.png");
+}
+
+#connect4block .top-player-name {
+    font-size: 12px;
 }
 
 #connect4block .connect4block-top {
