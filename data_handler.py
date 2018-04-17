@@ -9,13 +9,12 @@ def json2dict(json_data):
     return json.loads(json_data)
 
 
-def create_output(username='', response_type='', response_data='', response_to_type='', response_to_data=''):
+def create_output(type='', username='', move=-1, to_username=''):
     output_data = {
+        'type': type,
         'username': username,
-        'response_type': response_type,
-        'response_data': response_data,
-        'response_to_type': response_to_type,
-        'response_to_data': response_to_data,
+        'move': move,
+        'to_username': to_username
     }
 
     return output_data

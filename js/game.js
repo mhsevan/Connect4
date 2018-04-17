@@ -1,12 +1,19 @@
 var connect4App = angular.module('connect4App', ['initialValue']);
 var $topDisk = jQuery("#connect4block-top-disk");
 var $connect4board = jQuery("#connect4block-board");
+var $connect4initForm = jQuery('#connect4initForm');
 
 connect4App.controller('Connect4Controller', function Connect4Controller($scope, $parse, $http) {
     $scope.default_player = {
         name: '',
         color: '',
-        type: 'user'
+        type: 'human'
+    }
+
+    $scope.prev_player_move = {
+        row: -1,
+        col: -1,
+        player: ''
     }
 
     $scope.loading_obj = {
@@ -37,16 +44,34 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
                 active: true,
                 source: 'local',
             },
-            // js_ai: {
-            //     name: 'AI - Javascript',
-            //     source: 'local',
-            // },
-            // java_ai: {
-            //     name: 'AI - Java',
-            //     source: 'remote',
-            // },
+            random_ai2: {
+                name: 'AI - Random 2',
+                active: true,
+                source: 'local',
+            },
             py_ai: {
                 name: 'AI - Python',
+                active: true,
+                source: 'remote',
+                remote_server: 'localhost',
+                remote_port: 8765,
+            },
+            py_ai2: {
+                name: 'AI - Python 2',
+                active: true,
+                source: 'remote',
+                remote_server: 'localhost',
+                remote_port: 8765,
+            },
+            minimax: {
+                name: 'AI - Minimax (Java)',
+                active: true,
+                source: 'remote',
+                remote_server: 'localhost',
+                remote_port: 8765,
+            },
+            MCTS: {
+                name: 'AI - MCTS (Java)',
                 active: true,
                 source: 'remote',
                 remote_server: 'localhost',
@@ -57,24 +82,24 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
     $scope.game = {
         status: 'init',
-        mode: 'multiple', //multiple || single
+        mode: 'human-vs-human', //human-vs-human || human-vs-ai || ai-vs-ai
         level: 'easy',
         starting_player: 'player1',
         winner: {
             name: '',
             color: '',
-            type: 'user'
+            type: 'human'
         },
         players: {
             player1: {
                 name: '',
                 color: 'red',
-                type: 'user'
+                type: 'human'
             },
             player2: {
                 name: '',
                 color: '',
-                type: 'user'
+                type: 'human'
             }
         }
     }
@@ -106,13 +131,13 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         $scope.syncInputs();
     }
 
-    $scope.create_output = function(username, response_type, response_data, response_to_type, response_to_data){
+    $scope.create_output = function(type, username, move, to_username){
         var output_data = {
+            type: $scope.defaultFor(type,''),
             username: $scope.defaultFor(username,''),
-            response_type: $scope.defaultFor(response_type,''),
-            response_data: $scope.defaultFor(response_data,''),
-            response_to_type: $scope.defaultFor(response_to_type,''),
-            response_to_data: $scope.defaultFor(response_to_data,''),
+            move: $scope.defaultFor(move,-1),
+            to_username: $scope.defaultFor(to_username,''),
+            from_game_player: 1
         }
 
         return output_data
@@ -121,13 +146,57 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
     if ("WebSocket" in window) {
         $scope.config.websocket.active = true;
         console.log("WebSocket is supported by your Browser!");
+
+        // Let us open a web socket
+        $scope.ws = new WebSocket($scope.config.websocket.server_address);
+
+        $scope.ws.onopen = function(){
+            // Web Socket is connected, send data using send()
+            var join_data = $scope.create_output('join', $scope.config.websocket.username)
+            $scope.ws.send(JSON.stringify(join_data));
+            console.log("Join:",join_data);
+        };
+
+        $scope.ws.onmessage = function (evt){
+            var received_str = evt.data;
+            var received_data = JSON.parse(received_str);
+
+            console.log("Received: ", received_data);
+
+            if(received_data.type === 'join'){
+                $scope.config.websocket.join_success = true;
+                $scope.gameAiCheck();
+            } else if(received_data.type === 'move'){
+                $scope.loadingBlockUpdate(false);
+                var $this_playerObj = $scope.game.players[$scope.disk.player];
+
+                if($this_playerObj.type === received_data.username){
+                    $scope.dropDisk(received_data.move);
+                }
+            }
+
+            return false;
+        };
+
+        $scope.ws.onclose = function(){
+            $scope.config.websocket.join_success = false;
+            // websocket is closed.
+            console.log("Connection is closed...");
+        };
+
+        $scope.ws.onerror = function(evt){
+            $scope.config.websocket.join_success = false;
+            // websocket is error.
+            console.log("Connection error...");
+            console.log(evt);
+        };
     } else {
         // The browser doesn't support WebSocket
         console.log("WebSocket NOT supported by your Browser!");
     }
 
     $scope.updateGameMode = function() {
-        if($scope.game.mode === 'single'){
+        if($scope.game.mode === 'human-vs-human'){
             jQuery.each( $scope.config.ai_players, function( ai_player_key, ai_player ) {
                 if(ai_player.active){
                     $scope.game.players.player2.type = ai_player_key;
@@ -135,17 +204,19 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
                 }
             });
         } else {
-            $scope.game.players.player2.type = 'user';
+            $scope.game.players.player2.type = 'human';
         }
-        console.log($scope.game.players.player2.type);
         $scope.syncInputs();
     }
 
     $scope.gameAiCheck = function() {
         if($scope.config.websocket.join_success){
-
+            angular.forEach($scope.config.ai_players, function(ai_player, ai_player_key) {
+                if(ai_player.source === 'remote'){
+                    $scope.config.ai_players[ai_player_key].active = true;
+                }
+            });
         } else {
-
             angular.forEach($scope.config.ai_players, function(ai_player, ai_player_key) {
                 if(ai_player.source === 'remote'){
                     $scope.config.ai_players[ai_player_key].active = false;
@@ -158,7 +229,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
     $scope.gameFormInit = function() {
         $scope.game.status = 'init';
-        $scope.game.mode = 'multiple';
+        $scope.game.mode = 'human-vs-human';
         $scope.updateGameMode();
         $scope.game.level = 'easy';
         $scope.game.starting_player = 'player1';
@@ -168,6 +239,8 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         $scope.game.players.player2 = jQuery.extend(true, {}, $scope.default_player);
 
         $scope.gameAiCheck();
+
+        $scope.syncInputs();
     }
 
     $scope.getAvailableDropSpaces = function() {
@@ -183,10 +256,19 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
     }
 
     $scope.playerMove = function() {
-        var player_type = $scope.game.players[$scope.disk.player].type;
-        if(jQuery.inArray( player_type, $scope.config.ai_players )){
-            switch (player_type) {
+        var $this_playerObj = $scope.game.players[$scope.disk.player];
+        var opp_player = $scope.disk.player == 'player1'? 'player2':'player1';
+        var $opp_playerObj = $scope.game.players[opp_player];
+        var $prev_playerObj = false;
+
+        if($scope.prev_player_move.player !== ''){
+            $prev_playerObj = $scope.game.players[$scope.prev_player_move.player];
+        }
+
+        if(jQuery.inArray( $this_playerObj.type, $scope.config.ai_players )){
+            switch ($this_playerObj.type) {
                 case 'random_ai':
+                case 'random_ai2':
                     var available_places = $scope.getAvailableDropSpaces();
                     //console.log(available_places);
 
@@ -194,11 +276,37 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
                         var drop_col = available_places[Math.floor(Math.random()*available_places.length)];
                         //console.log(drop_col);
                         $scope.dropDisk(drop_col);
+
+                        if($opp_playerObj.source == 'remote'){
+                            var move_data = $scope.create_output('move', $this_playerObj.type, drop_col, $opp_playerObj.type);
+                            $scope.ws.send(JSON.stringify(move_data));
+                        }
                     }
                     break;
-                case 'java_ai':
-                    break;
+                case 'minimax':
+                case 'MCTS':
                 case 'py_ai':
+                case 'py_ai2':
+                    var this_player_username = $scope.config.websocket.username;
+
+                    var prev_col = $scope.prev_player_move.col;
+                    var prev_player_username = $scope.config.websocket.username;
+
+                    if($prev_playerObj){
+                        if($prev_playerObj.type !== 'human'){
+                            prev_player_username = $prev_playerObj.type;
+                        }
+                    }
+
+                    if($this_playerObj.type !== 'human'){
+                        this_player_username = $this_playerObj.type;
+                    }
+
+                    $scope.loadingBlockUpdate(true,$this_playerObj.name+' thinking');
+
+                    var move_data = $scope.create_output('move', prev_player_username, prev_col, this_player_username);
+                    $scope.ws.send(JSON.stringify(move_data));
+
                     break;
                 default:
                     break;
@@ -233,6 +341,10 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
     $scope.initBoard = function() {
         $scope.board = [];
         $scope.board_drop_space = [];
+
+        $scope.prev_player_move.row = -1;
+        $scope.prev_player_move.col = -1;
+        $scope.prev_player_move.player = '';
 
         $connect4board.find('.connect4-disk').remove();
 
@@ -409,8 +521,15 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
             $newDisk.animate({left:movePos_left,top:movePos_top}, 350, function() {
                 $scope.board[this_row][this_col].player = this_player;
 
+                $scope.prev_player_move.row = this_row;
+                $scope.prev_player_move.col = this_col;
+                $scope.prev_player_move.player = this_player;
+
                 if($scope.isDiskMatched(this_row,this_col) === false){
                     $scope.changePlayer();
+
+                    //var test_data = $scope.create_output($scope.config.websocket.username, 'move',Math.floor(Math.random() * 1000) + 1)
+                    //$scope.ws.send(JSON.stringify(test_data));
                 }
             });
         }
@@ -433,59 +552,21 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
     $scope.startGame = function() {
         $scope.loadingBlockUpdate(true);
 
-        if($scope.game.mode === 'single'){
+        if($scope.game.mode === 'ai-vs-ai'){
+            $scope.game.players.player1.name = $scope.config.ai_players[$scope.game.players.player1.type].name;
+        }
+
+        if($scope.game.mode !== 'human-vs-human'){
             $scope.game.players.player2.name = $scope.config.ai_players[$scope.game.players.player2.type].name;
         }
-        var player1color = $scope.game.players.player1.color;
-        var player2color = player1color === 'red'? 'yellow':'red';
 
-        $scope.game.players.player2.color = player2color;
+        $scope.game.players.player2.color = $scope.game.players.player1.color === 'red'? 'yellow':'red';
 
         $scope.syncInputs();
 
         $scope.initBoard();
         $scope.moveTopDisk(0);
         $topDisk.hide();
-
-
-        if ($scope.config.websocket.active) {
-            // Let us open a web socket
-            $scope.ws = new WebSocket($scope.config.websocket.server_address);
-
-            $scope.ws.onopen = function(){
-                // Web Socket is connected, send data using send()
-                var join_data = $scope.create_output($scope.config.websocket.username, 'join')
-                $scope.ws.send(JSON.stringify(join_data));
-                console.log("Join:",join_data);
-            };
-
-            $scope.ws.onmessage = function (evt){
-                var join_str = evt.data;
-                var join_success = JSON.parse(join_str);
-
-                console.log("Received",join_success);
-
-                if(join_success.response_type === 'join'){
-                    $scope.config.websocket.join_success = true;
-                    // $scope.ws.send(player_username);
-                    // console.log("Message is sent: "+player_username);
-                }
-                return false;
-            };
-
-            $scope.ws.onclose = function(){
-                $scope.config.websocket.join_success = false;
-                // websocket is closed.
-                console.log("Connection is closed...");
-            };
-
-            $scope.ws.onerror = function(evt){
-                $scope.config.websocket.join_success = false;
-                // websocket is error.
-                console.log("Connection error...");
-                console.log(evt);
-            };
-        }
 
         setTimeout(function(){
             $scope.loadingBlockUpdate(false);
@@ -498,8 +579,6 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
     $scope.exitGame = function() {
         $scope.gameFormInit();
-
-        $scope.syncInputs();
     };
 
     $scope.gameRunning = function(action,thisPointer) {

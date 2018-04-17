@@ -5,7 +5,7 @@ import random
 
 server_address = 'ws://localhost:8765'
 
-player_username = 'py_ai'
+player_username = 'py_ai2'
 
 gameboard = []
 
