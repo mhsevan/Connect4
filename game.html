@@ -197,11 +197,6 @@
                             <div class="connect4gameover" class="connect4gameover" ng-show="game.status === 'gameover'">
                                 <h2>Congratulations!</h2>
                                 <h3><strong>{{game.winner.name}}</strong> won the game</h3>
-                                <div class="row">
-                                    <div class="col-sm text-center">
-                                        <button type="button" class="btn btn-primary" ng-click="exitGame()"><i class="material-icons">settings_backup_restore</i> New Game</button>
-                                    </div>
-                                </div>
                             </div>
                             <div class="mt-4">
                                 <div class="row">
@@ -210,9 +205,6 @@
                                     </div>
                                     <div class="col-sm">
                                         <h4 class="top-player-name"><div class="connect4-disk connect4-disk-relative connect4-disk-sm connect4-disk-{{game.players.player2.color}}"></div> {{game.players.player2.name}}</h4>
-                                    </div>
-                                    <div class="col-sm-3">
-                                        <button type="button" class="btn btn-sm btn-danger" ng-click="exitGame()">Exit Game</button>
                                     </div>
                                 </div>
                             </div>

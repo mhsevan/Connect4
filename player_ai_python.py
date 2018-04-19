@@ -3,7 +3,7 @@ import websockets
 import data_handler
 import random
 
-server_address = 'ws://localhost:8765'
+server_address = 'ws://10.35.4.38:8765'
 
 player_username = 'py_ai'
 

@@ -25,7 +25,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
     $scope.config = {
         websocket: {
             active: false,
-            server_address: "ws://localhost:8765/",
+            server_address: "ws://10.35.4.38:8765/",
             username: 'game_player',
             join_success: false
         },
@@ -292,7 +292,11 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
                     var prev_col = $scope.prev_player_move.col;
                     var prev_player_username = $scope.config.websocket.username;
 
-                    if($prev_playerObj){
+                    if(prev_col == -1){
+                            if($opp_playerObj.type !== 'human'){
+                                prev_player_username = $opp_playerObj.type;
+                            }
+                    } else if($prev_playerObj){
                         if($prev_playerObj.type !== 'human'){
                             prev_player_username = $prev_playerObj.type;
                         }
@@ -403,6 +407,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
     $scope.isDiskMatched = function(this_row,this_col){
         var matchFound = false;
+        var matched_cells = [];
 
         this_row = parseInt(this_row);
         this_col = parseInt(this_col);
@@ -411,7 +416,15 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
         angular.forEach(['hor','ver','dia_up','dia_down'], function(check_type) {
             if(!matchFound){
+                matched_cells = [];
+
                 var countMatcheItem = 1;
+
+
+                matched_cells.push({
+                    row: this_row,
+                    col: this_col
+                });
 
                 var go_left_row = 0;
                 var go_left_col = 0;
@@ -454,6 +467,10 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
                     if(checkStatus.left && $scope.isInsideBoard(go_left_row,go_left_col)){
                         if($scope.board[go_left_row][go_left_col].player === this_player){
+                            matched_cells.push({
+                                row: go_left_row,
+                                col: go_left_col
+                            });
                             countMatcheItem++;
                         } else {
                             checkStatus.left = false
@@ -462,6 +479,10 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
                     if(checkStatus.right && $scope.isInsideBoard(go_right_row,go_right_col)){
                         if($scope.board[go_right_row][go_right_col].player === this_player){
+                            matched_cells.push({
+                                row: go_right_row,
+                                col: go_right_col
+                            });
                             countMatcheItem++;
                         } else {
                             checkStatus.right = false
@@ -476,7 +497,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         });
 
         if(matchFound){
-            $scope.gameover(this_player);
+            $scope.gameover(this_player,matched_cells);
             //alert('matched');
         }
 
@@ -503,7 +524,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
             var this_player = $scope.disk.player;
             var this_color = $scope.disk.color;
-            var $newDisk = jQuery('<div class="connect4-disk connect4-disk-'+this_color+'"></div>');
+            var $newDisk = jQuery('<div id="connect4-disk-cell-'+this_row+'-'+this_col+'" class="connect4-disk connect4-disk-'+this_color+'"></div>');
 
             var $thisCell = $connect4board.find('#connect4block-board-cell-'+this_row+'-'+this_col);
             //console.log('$thisCell',$thisCell);
@@ -539,7 +560,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         }
     }
 
-    $scope.gameover = function(this_player) {
+    $scope.gameover = function(this_player,matched_cells) {
         $scope.game.winner = jQuery.extend(true, {}, $scope.game.players[this_player]);
 
         $scope.gameRunning('hide');
@@ -547,6 +568,12 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         $scope.game.status = 'gameover';
 
         $scope.syncInputs();
+
+        console.log(matched_cells);
+
+        angular.forEach(matched_cells, function(matched_cell) {
+            jQuery('#connect4-disk-cell-'+matched_cell.row+'-'+matched_cell.col).addClass('connect4-disk-cell-matched');
+        });
     }
 
     $scope.startGame = function() {
