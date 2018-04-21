@@ -572,7 +572,9 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         console.log(matched_cells);
 
         angular.forEach(matched_cells, function(matched_cell) {
-            jQuery('#connect4-disk-cell-'+matched_cell.row+'-'+matched_cell.col).addClass('connect4-disk-cell-matched');
+            if(!jQuery('#connect4-disk-cell-'+matched_cell.row+'-'+matched_cell.col).hasClass()){
+                jQuery('#connect4-disk-cell-'+matched_cell.row+'-'+matched_cell.col).addClass('connect4-disk-cell-matched');
+            }
         });
     }
 
