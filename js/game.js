@@ -408,6 +408,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
     $scope.isDiskMatched = function(this_row,this_col){
         var matchFound = false;
         var matched_cells = [];
+        var all_matched_cells = [];
 
         this_row = parseInt(this_row);
         this_col = parseInt(this_col);
@@ -415,89 +416,89 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         var this_player = $scope.board[this_row][this_col].player;
 
         angular.forEach(['hor','ver','dia_up','dia_down'], function(check_type) {
-            if(!matchFound){
-                matched_cells = [];
+            matched_cells = [];
 
-                var countMatchedItem = 1;
+            var countMatchedItem = 1;
 
 
-                matched_cells.push({
-                    row: this_row,
-                    col: this_col
-                });
+            matched_cells.push({
+                row: this_row,
+                col: this_col
+            });
 
-                var go_left_row = 0;
-                var go_left_col = 0;
+            var go_left_row = 0;
+            var go_left_col = 0;
 
-                var go_right_row = 0;
-                var go_right_col = 0;
+            var go_right_row = 0;
+            var go_right_col = 0;
 
-                if(check_type === 'hor'){
-                    go_left_row = this_row;
-                    go_right_row = this_row;
-                } else if(check_type === 'ver'){
-                    go_left_col = this_col;
-                    go_right_col = this_col;
-                }
+            if(check_type === 'hor'){
+                go_left_row = this_row;
+                go_right_row = this_row;
+            } else if(check_type === 'ver'){
+                go_left_col = this_col;
+                go_right_col = this_col;
+            }
 
-                var checkStatus = {
-                    left: true,
-                    right: true
-                };
+            var checkStatus = {
+                left: true,
+                right: true
+            };
 
-                for(var i=1; i < 4; i++){
-                    if(check_type === 'dia_up'){
+            for(var i=1; i < 4; i++){
+                if(check_type === 'dia_up'){
 
-                        go_left_row = 1 * this_row + i;
+                    go_left_row = 1 * this_row + i;
+                    go_left_col = this_col - i;
+
+                    go_right_row = this_row - i;
+                    go_right_col = 1 * this_col + i;
+                } else {
+                    if(check_type === 'ver' || check_type === 'dia_down'){
+                        go_left_row = this_row - i;
+                        go_right_row = 1 * this_row + i;
+                    }
+
+                    if(check_type === 'hor' || check_type === 'dia_down'){
                         go_left_col = this_col - i;
-
-                        go_right_row = this_row - i;
                         go_right_col = 1 * this_col + i;
+                    }
+                }
+
+                if(checkStatus.left && $scope.isInsideBoard(go_left_row,go_left_col)){
+                    if($scope.board[go_left_row][go_left_col].player === this_player){
+                        matched_cells.push({
+                            row: go_left_row,
+                            col: go_left_col
+                        });
+                        countMatchedItem++;
                     } else {
-                        if(check_type === 'ver' || check_type === 'dia_down'){
-                            go_left_row = this_row - i;
-                            go_right_row = 1 * this_row + i;
-                        }
-
-                        if(check_type === 'hor' || check_type === 'dia_down'){
-                            go_left_col = this_col - i;
-                            go_right_col = 1 * this_col + i;
-                        }
-                    }
-
-                    if(checkStatus.left && $scope.isInsideBoard(go_left_row,go_left_col)){
-                        if($scope.board[go_left_row][go_left_col].player === this_player){
-                            matched_cells.push({
-                                row: go_left_row,
-                                col: go_left_col
-                            });
-                            countMatchedItem++;
-                        } else {
-                            checkStatus.left = false
-                        }
-                    }
-
-                    if(checkStatus.right && $scope.isInsideBoard(go_right_row,go_right_col)){
-                        if($scope.board[go_right_row][go_right_col].player === this_player){
-                            matched_cells.push({
-                                row: go_right_row,
-                                col: go_right_col
-                            });
-                            countMatchedItem++;
-                        } else {
-                            checkStatus.right = false
-                        }
+                        checkStatus.left = false
                     }
                 }
 
-                if(countMatchedItem >= 4){
-                    matchFound = true;
+                if(checkStatus.right && $scope.isInsideBoard(go_right_row,go_right_col)){
+                    if($scope.board[go_right_row][go_right_col].player === this_player){
+                        matched_cells.push({
+                            row: go_right_row,
+                            col: go_right_col
+                        });
+                        countMatchedItem++;
+                    } else {
+                        checkStatus.right = false
+                    }
                 }
+            }
+
+            if(countMatchedItem >= 4){
+                matchFound = true;
+                var tmp_arr = all_matched_cells.concat(matched_cells);
+                all_matched_cells = tmp_arr.slice(0);
             }
         });
 
         if(matchFound){
-            $scope.gameover(this_player,matched_cells);
+            $scope.gameover(this_player,all_matched_cells);
             //alert('matched');
         }
 
