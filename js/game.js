@@ -418,7 +418,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
             if(!matchFound){
                 matched_cells = [];
 
-                var countMatcheItem = 1;
+                var countMatchedItem = 1;
 
 
                 matched_cells.push({
@@ -471,7 +471,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
                                 row: go_left_row,
                                 col: go_left_col
                             });
-                            countMatcheItem++;
+                            countMatchedItem++;
                         } else {
                             checkStatus.left = false
                         }
@@ -483,14 +483,14 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
                                 row: go_right_row,
                                 col: go_right_col
                             });
-                            countMatcheItem++;
+                            countMatchedItem++;
                         } else {
                             checkStatus.right = false
                         }
                     }
                 }
 
-                if(countMatcheItem == 4){
+                if(countMatchedItem >= 4){
                     matchFound = true;
                 }
             }
