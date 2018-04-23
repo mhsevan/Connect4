@@ -197,15 +197,26 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
     }
 
     $scope.updateGameMode = function() {
+        if($scope.game.mode != 'ai-vs-ai'){
+            $scope.game.players.player1.type = 'human';
+        } else {
+            jQuery.each( $scope.config.ai_players, function( ai_player_key, ai_player ) {
+                if(ai_player.active){
+                    $scope.game.players.player1.type = ai_player_key;
+                    return false;
+                }
+            });
+        }
+
         if($scope.game.mode === 'human-vs-human'){
+            $scope.game.players.player2.type = 'human';
+        } else {
             jQuery.each( $scope.config.ai_players, function( ai_player_key, ai_player ) {
                 if(ai_player.active){
                     $scope.game.players.player2.type = ai_player_key;
                     return false;
                 }
             });
-        } else {
-            $scope.game.players.player2.type = 'human';
         }
         $scope.syncInputs();
     }
