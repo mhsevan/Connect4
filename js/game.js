@@ -82,6 +82,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
     $scope.game = {
         status: 'init',
+        drop_disk: false,
         mode: 'human-vs-human', //human-vs-human || human-vs-ai || ai-vs-ai
         level: 'easy',
         starting_player: 'player1',
@@ -231,6 +232,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         $scope.game.status = 'init';
         $scope.game.mode = 'human-vs-human';
         $scope.updateGameMode();
+        $scope.game.drop_disk = false;
         $scope.game.level = 'easy';
         $scope.game.starting_player = 'player1';
         $scope.game.winner = jQuery.extend(true, {}, $scope.default_player);
@@ -510,6 +512,8 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         var invalid_drop = true;
 
         if(this_col !== undefined && $scope.board_drop_space[this_col] >= 0){
+            $scope.dropDisk.drop_disk = true;
+
             invalid_drop = false;
 
             var startPosOffset = jQuery("#connect4-top-disk-col-"+this_col).position();
@@ -549,6 +553,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
                 if($scope.isDiskMatched(this_row,this_col) === false){
                     $scope.changePlayer();
+                    $scope.dropDisk.drop_disk = false;
 
                     //var test_data = $scope.create_output($scope.config.websocket.username, 'move',Math.floor(Math.random() * 1000) + 1)
                     //$scope.ws.send(JSON.stringify(test_data));
@@ -630,7 +635,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
                         } else {
                             action = '';
                         }
-                        if(action === 'dropDisk'){
+                        if(action === 'dropDisk' && !$scope.dropDisk.drop_disk){
                             $scope.dropDisk(this_col);
                         }
                     }
