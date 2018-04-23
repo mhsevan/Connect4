@@ -294,7 +294,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
             $prev_playerObj = $scope.game.players[$scope.prev_player_move.player];
         }
 
-        if(jQuery.inArray( $this_playerObj.type, $scope.config.ai_players )){
+        if($scope.config.ai_players[$this_playerObj.type] != undefined){
             if($scope.config.ai_players[$this_playerObj.type].source == 'remote'){
                 var this_player_username = $scope.config.websocket.username;
 
