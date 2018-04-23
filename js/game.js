@@ -553,6 +553,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
                 if($scope.isDiskMatched(this_row,this_col) === false){
                     $scope.changePlayer();
+
                     $scope.dropDisk.drop_disk = false;
 
                     //var test_data = $scope.create_output($scope.config.websocket.username, 'move',Math.floor(Math.random() * 1000) + 1)
