@@ -3,7 +3,7 @@ import websockets
 import data_handler
 from player import Player
 
-server_address = "10.35.4.38"
+server_address = "10.35.5.205"
 server_port = 8765
 
 players = {}

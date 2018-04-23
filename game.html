@@ -195,8 +195,14 @@
                                 </div>
                             </div>
                             <div class="connect4gameover" class="connect4gameover" ng-show="game.status === 'gameover'">
-                                <h2>Congratulations!</h2>
-                                <h3><strong>{{game.winner.name}}</strong> won the game</h3>
+                                <div ng-show="game.gameover_type === 'winner'">
+                                    <h2>Congratulations!</h2>
+                                    <h3><strong>{{game.winner.name}}</strong> won the game</h3>
+                                </div>
+                                <div ng-show="game.gameover_type === 'tie'">
+                                    <h2>Tie!</h2>
+                                    <h3>No more move left</h3>
+                                </div>
                             </div>
                             <div class="mt-4">
                                 <div class="row">

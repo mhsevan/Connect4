@@ -25,7 +25,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
     $scope.config = {
         websocket: {
             active: false,
-            server_address: "ws://10.35.4.38:8765/",
+            server_address: "ws://10.35.5.205:8765/",
             username: 'game_player',
             join_success: false
         },
@@ -82,6 +82,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
     $scope.game = {
         status: 'init',
+        gameover_type: 'winner',
         drop_disk: false,
         mode: 'human-vs-human', //human-vs-human || human-vs-ai || ai-vs-ai
         level: 'easy',
@@ -241,6 +242,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
     $scope.gameFormInit = function() {
         $scope.game.status = 'init';
+        $scope.game.gameover_type = 'winner';
         $scope.game.mode = 'human-vs-human';
         $scope.updateGameMode();
         $scope.game.disk_droping = false;
@@ -511,7 +513,7 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         });
 
         if(matchFound){
-            $scope.gameover(this_player,all_matched_cells);
+            $scope.gameover('winner',this_player,all_matched_cells);
             //alert('matched');
         }
 
@@ -519,67 +521,78 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
     }
 
     $scope.dropDisk = function(this_col) {
+        if($scope.game.disk_droping === false){
+            var invalid_drop = true;
 
-        var invalid_drop = true;
+            if(this_col !== undefined && $scope.board_drop_space[this_col] >= 0){
+                $scope.game.disk_droping = true;
 
-        if(this_col !== undefined && $scope.board_drop_space[this_col] >= 0){
-            $scope.dropDisk.disk_droping = true;
+                invalid_drop = false;
 
-            invalid_drop = false;
+                var startPosOffset = jQuery("#connect4-top-disk-col-"+this_col).position();
 
-            var startPosOffset = jQuery("#connect4-top-disk-col-"+this_col).position();
+                var startPos_left = startPosOffset.left+5;
+                var startPos_top = startPosOffset.top+5;
 
-            var startPos_left = startPosOffset.left+5;
-            var startPos_top = startPosOffset.top+5;
+                var this_row = $scope.board_drop_space[this_col];
 
-            var this_row = $scope.board_drop_space[this_col];
+                //console.log(this_row, this_col);
 
-            //console.log(this_row, this_col);
+                //console.log('#connect4block-board-cell-'+this_row+'-'+this_col);
 
-            //console.log('#connect4block-board-cell-'+this_row+'-'+this_col);
+                var this_player = $scope.disk.player;
+                var this_color = $scope.disk.color;
+                var $newDisk = jQuery('<div id="connect4-disk-cell-'+this_row+'-'+this_col+'" class="connect4-disk connect4-disk-'+this_color+'"></div>');
 
-            var this_player = $scope.disk.player;
-            var this_color = $scope.disk.color;
-            var $newDisk = jQuery('<div id="connect4-disk-cell-'+this_row+'-'+this_col+'" class="connect4-disk connect4-disk-'+this_color+'"></div>');
+                var $thisCell = $connect4board.find('#connect4block-board-cell-'+this_row+'-'+this_col);
+                //console.log('$thisCell',$thisCell);
+                var thisCellOffset = $thisCell.position();
 
-            var $thisCell = $connect4board.find('#connect4block-board-cell-'+this_row+'-'+this_col);
-            //console.log('$thisCell',$thisCell);
-            var thisCellOffset = $thisCell.position();
+                var movePos_left = thisCellOffset.left+5;
+                var movePos_top = thisCellOffset.top+5;
 
-            var movePos_left = thisCellOffset.left+5;
-            var movePos_top = thisCellOffset.top+5;
+                $newDisk.css({left:startPos_left,top:startPos_top});
 
-            $newDisk.css({left:startPos_left,top:startPos_top});
+                $connect4board.append($newDisk);
 
-            $connect4board.append($newDisk);
+                $scope.board_drop_space[this_col] = $scope.board_drop_space[this_col] - 1;
 
-            $scope.board_drop_space[this_col] = $scope.board_drop_space[this_col] - 1;
+                $newDisk.animate({left:movePos_left,top:movePos_top}, 350, function() {
+                    $scope.board[this_row][this_col].player = this_player;
 
-            $newDisk.animate({left:movePos_left,top:movePos_top}, 350, function() {
-                $scope.board[this_row][this_col].player = this_player;
+                    $scope.prev_player_move.row = this_row;
+                    $scope.prev_player_move.col = this_col;
+                    $scope.prev_player_move.player = this_player;
 
-                $scope.prev_player_move.row = this_row;
-                $scope.prev_player_move.col = this_col;
-                $scope.prev_player_move.player = this_player;
+                    if($scope.isDiskMatched(this_row,this_col) === false){
+                        $scope.changePlayer();
 
-                if($scope.isDiskMatched(this_row,this_col) === false){
-                    $scope.changePlayer();
+                        $scope.game.disk_droping = false;
 
-                    $scope.dropDisk.disk_droping = false;
+                        var available_places = $scope.getAvailableDropSpaces();
 
-                    //var test_data = $scope.create_output($scope.config.websocket.username, 'move',Math.floor(Math.random() * 1000) + 1)
-                    //$scope.ws.send(JSON.stringify(test_data));
-                }
-            });
-        }
+                        if(available_places.length <= 0){
+                            $scope.gameover('tie');
+                        }
 
-        if(invalid_drop){
-            alert('Invalid Drop');
+                        //var test_data = $scope.create_output($scope.config.websocket.username, 'move',Math.floor(Math.random() * 1000) + 1)
+                        //$scope.ws.send(JSON.stringify(test_data));
+                    }
+                });
+            }
+
+            if(invalid_drop){
+                alert('Invalid Drop');
+            }
         }
     }
 
-    $scope.gameover = function(this_player,matched_cells) {
-        $scope.game.winner = jQuery.extend(true, {}, $scope.game.players[this_player]);
+    $scope.gameover = function(gameover_type,this_player,matched_cells) {
+        $scope.game.gameover_type = $scope.defaultFor(gameover_type,'winner');
+
+        if($scope.game.gameover_type == 'winner'){
+            $scope.game.winner = jQuery.extend(true, {}, $scope.game.players[this_player]);
+        }
 
         $scope.gameRunning('hide');
 
@@ -587,13 +600,15 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
 
         $scope.syncInputs();
 
-        console.log(matched_cells);
-
-        angular.forEach(matched_cells, function(matched_cell) {
-            if(!jQuery('#connect4-disk-cell-'+matched_cell.row+'-'+matched_cell.col).hasClass()){
-                jQuery('#connect4-disk-cell-'+matched_cell.row+'-'+matched_cell.col).addClass('connect4-disk-cell-matched');
-            }
-        });
+        if($scope.game.gameover_type == 'tie'){
+            $connect4board.find('.connect4-disk').addClass('connect4-disk-cell-matched');
+        } else {
+            angular.forEach(matched_cells, function(matched_cell) {
+                if(!jQuery('#connect4-disk-cell-'+matched_cell.row+'-'+matched_cell.col).hasClass()){
+                    jQuery('#connect4-disk-cell-'+matched_cell.row+'-'+matched_cell.col).addClass('connect4-disk-cell-matched');
+                }
+            });
+        }
     }
 
     $scope.startGame = function() {
