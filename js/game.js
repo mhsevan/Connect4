@@ -70,8 +70,22 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
                 remote_server: 'localhost',
                 remote_port: 8765,
             },
+            minimax2: {
+                name: 'AI - Minimax 2 (Java)',
+                active: true,
+                source: 'remote',
+                remote_server: 'localhost',
+                remote_port: 8765,
+            },
             MCTS: {
                 name: 'AI - MCTS (Java)',
+                active: true,
+                source: 'remote',
+                remote_server: 'localhost',
+                remote_port: 8765,
+            },
+            MCTS2: {
+                name: 'AI - MCTS 2 (Java)',
                 active: true,
                 source: 'remote',
                 remote_server: 'localhost',
@@ -281,54 +295,52 @@ connect4App.controller('Connect4Controller', function Connect4Controller($scope,
         }
 
         if(jQuery.inArray( $this_playerObj.type, $scope.config.ai_players )){
-            switch ($this_playerObj.type) {
-                case 'random_ai':
-                case 'random_ai2':
-                    var available_places = $scope.getAvailableDropSpaces();
-                    //console.log(available_places);
+            if($scope.config.ai_players[$this_playerObj.type].source == 'remote'){
+                var this_player_username = $scope.config.websocket.username;
 
-                    if(available_places.length){
-                        var drop_col = available_places[Math.floor(Math.random()*available_places.length)];
-                        //console.log(drop_col);
-                        $scope.dropDisk(drop_col);
+                var prev_col = $scope.prev_player_move.col;
+                var prev_player_username = $scope.config.websocket.username;
 
-                        if($opp_playerObj.source == 'remote'){
-                            var move_data = $scope.create_output('move', $this_playerObj.type, drop_col, $opp_playerObj.type);
-                            $scope.ws.send(JSON.stringify(move_data));
+                if(prev_col == -1){
+                        if($opp_playerObj.type !== 'human'){
+                            prev_player_username = $opp_playerObj.type;
                         }
+                } else if($prev_playerObj){
+                    if($prev_playerObj.type !== 'human'){
+                        prev_player_username = $prev_playerObj.type;
                     }
-                    break;
-                case 'minimax':
-                case 'MCTS':
-                case 'py_ai':
-                case 'py_ai2':
-                    var this_player_username = $scope.config.websocket.username;
+                }
 
-                    var prev_col = $scope.prev_player_move.col;
-                    var prev_player_username = $scope.config.websocket.username;
+                if($this_playerObj.type !== 'human'){
+                    this_player_username = $this_playerObj.type;
+                }
 
-                    if(prev_col == -1){
-                            if($opp_playerObj.type !== 'human'){
-                                prev_player_username = $opp_playerObj.type;
+                $scope.loadingBlockUpdate(true,$this_playerObj.name+' thinking');
+
+                var move_data = $scope.create_output('move', prev_player_username, prev_col, this_player_username);
+                $scope.ws.send(JSON.stringify(move_data));
+            } else {
+                switch ($this_playerObj.type) {
+                    case 'random_ai':
+                    case 'random_ai2':
+                        var available_places = $scope.getAvailableDropSpaces();
+                        //console.log(available_places);
+
+                        if(available_places.length){
+                            var drop_col = available_places[Math.floor(Math.random()*available_places.length)];
+                            //console.log(drop_col);
+                            $scope.dropDisk(drop_col);
+
+                            if($scope.config.ai_players[$opp_playerObj.type].source == 'remote'){
+                                var move_data = $scope.create_output('move', $this_playerObj.type, drop_col, $opp_playerObj.type);
+                                $scope.ws.send(JSON.stringify(move_data));
                             }
-                    } else if($prev_playerObj){
-                        if($prev_playerObj.type !== 'human'){
-                            prev_player_username = $prev_playerObj.type;
                         }
-                    }
+                        break;
 
-                    if($this_playerObj.type !== 'human'){
-                        this_player_username = $this_playerObj.type;
-                    }
-
-                    $scope.loadingBlockUpdate(true,$this_playerObj.name+' thinking');
-
-                    var move_data = $scope.create_output('move', prev_player_username, prev_col, this_player_username);
-                    $scope.ws.send(JSON.stringify(move_data));
-
-                    break;
-                default:
-                    break;
+                    default:
+                        break;
+                }
             }
 
             $scope.syncInputs();
